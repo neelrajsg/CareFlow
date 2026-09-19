@@ -1,444 +1,250 @@
 # CareFlow
 
-**FHIR-Based Clinical Integration and Patient Event Platform**
+## FHIR-Based Clinical Integration and Patient Event Platform
 
-CareFlow is an open-source healthcare integration platform built with Java and Spring Boot for managing clinical data, patient events, healthcare interoperability, and event-driven workflows.
+CareFlow is a healthcare interoperability and clinical integration platform designed to unify patient information across Electronic Health Records (EHR), laboratory systems, radiology systems, pharmacy platforms, medical imaging systems, and patient monitoring applications.
 
-The project explores how production healthcare systems can integrate data across EHR, laboratory, radiology, pharmacy, medical imaging, and patient monitoring systems while maintaining a consistent clinical data model and API layer.
+The platform provides a standardized backend for managing clinical data, building longitudinal patient timelines, exchanging healthcare information using FHIR R4, processing clinical events, generating rule-based alerts, and integrating medical imaging metadata.
 
-CareFlow is being developed as a production-oriented system rather than a traditional CRUD-based hospital management application.
-
-> Status: Active Development — Phase 1
+CareFlow is built around modern backend engineering principles including domain-driven modular architecture, event-driven communication, healthcare interoperability standards, secure APIs, observability, automated testing, and cloud-native deployment.
 
 ---
 
-## Overview
+## Problem Statement
 
-Modern healthcare environments rarely operate through a single application. Patient information is distributed across multiple systems:
+Healthcare organizations typically operate multiple independent software systems.
 
-- Electronic Health Record (EHR)
-- Laboratory Information System (LIS)
-- Radiology Information System (RIS)
-- PACS and medical imaging systems
+A patient's information may be distributed across:
+
+- Electronic Health Record systems
+- Laboratory Information Systems
+- Radiology Information Systems
+- PACS
 - Pharmacy systems
 - Patient monitoring platforms
-- External clinical applications
+- Clinical applications
+- External healthcare providers
 
-CareFlow aims to provide a common integration layer between these systems.
+These systems frequently use different data models, APIs, identifiers, and communication mechanisms.
+
+This creates several engineering challenges:
+
+- Fragmented patient information
+- Limited interoperability between systems
+- Duplicate clinical data
+- Inconsistent patient identifiers
+- Difficulty building a complete patient history
+- Delayed propagation of clinical events
+- Integration complexity between healthcare applications
+- Limited auditability
+- Vendor-specific data formats
+- Difficulty scaling integrations as new systems are introduced
+
+CareFlow addresses these problems through a common clinical integration and event-processing platform.
+
+---
+
+## Solution
+
+CareFlow provides an interoperability layer between healthcare systems and clinical applications.
 
 ```text
-                    External Healthcare Systems
+                   Healthcare Systems
 
-          EHR        LIS        RIS/PACS       Pharmacy
-           |          |            |              |
-           +----------+------------+--------------+
-                              |
-                              v
-                    +-------------------+
-                    |     CareFlow      |
-                    | Integration Layer |
-                    +-------------------+
-                              |
-             +----------------+----------------+
-             |                |                |
-             v                v                v
-         FHIR APIs       Clinical Events   Rules Engine
-             |                |                |
-             +----------------+----------------+
-                              |
-                              v
-                     Patient Timeline
-                              |
-                              v
-                    Clinical Applications
-```
-
-The long-term goal is to support standards-based healthcare interoperability while providing scalable backend infrastructure for clinical applications.
-
----
-
-## Key Engineering Areas
-
-CareFlow focuses on several areas commonly encountered in healthcare platform engineering:
-
-- FHIR R4 interoperability
-- Clinical domain modeling
-- REST API design
-- Patient clinical timelines
-- Event-driven architecture
-- Authentication and role-based authorization
-- Clinical alert processing
-- Audit trails
-- Medical imaging metadata integration
-- Database performance
-- Distributed caching
-- Observability
-- Containerized deployment
-- CI/CD
-
----
-
-## Technology Stack
-
-### Current
-
-| Area | Technology |
-|---|---|
-| Language | Java 21 LTS |
-| Framework | Spring Boot 3.5.x |
-| API | Spring Web / REST |
-| Persistence | Spring Data JPA |
-| ORM | Hibernate |
-| Database | PostgreSQL |
-| Database Migration | Flyway |
-| Validation | Jakarta Bean Validation |
-| Build | Maven |
-| Version Control | Git |
-
-### Planned
-
-| Area | Technology |
-|---|---|
-| Security | Spring Security, JWT, OAuth2 |
-| Healthcare Standard | FHIR R4, HAPI FHIR |
-| Messaging | Apache Kafka |
-| Cache | Redis |
-| Frontend | React, TypeScript |
-| Testing | JUnit 5, Mockito, Testcontainers |
-| Code Quality | SonarQube |
-| Containers | Docker |
-| Orchestration | Kubernetes |
-| CI/CD | GitHub Actions |
-| Metrics | Prometheus |
-| Monitoring | Grafana |
-| Tracing | OpenTelemetry |
-| Cloud | AWS / Azure |
-
----
-
-## Architecture
-
-CareFlow currently follows a modular monolith architecture.
-
-```text
-                         Client
-                           |
-                     HTTP / JSON
+       EHR        LIS       RIS/PACS      Pharmacy
+        |          |           |             |
+        +----------+-----------+-------------+
                            |
                            v
-                +----------------------+
-                |     REST Layer       |
-                |     Controllers      |
-                +----------+-----------+
+              +--------------------------+
+              |         CareFlow         |
+              | Clinical Integration Hub |
+              +--------------------------+
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+     REST / FHIR      Clinical Events   Rules Engine
+          |                |                |
+          +----------------+----------------+
                            |
                            v
-                +----------------------+
-                |     DTO Layer        |
-                | Validation / Mapping |
-                +----------+-----------+
+                  Patient Timeline
                            |
-                           v
-                +----------------------+
-                |    Service Layer     |
-                |   Business Logic     |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |  Persistence Layer   |
-                | Spring Data JPA      |
-                +----------+-----------+
-                           |
-                           v
-                +----------------------+
-                |     PostgreSQL       |
-                +----------------------+
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+     Clinical UI      External Apps    Analytics
 ```
 
-A modular monolith is being used intentionally during the initial development stages.
-
-Service boundaries and domain ownership will be established before introducing distributed infrastructure. Selected modules may later be extracted into independently deployable services where there is a clear architectural reason.
+The platform provides a unified backend through which clinical applications can access and exchange healthcare information without directly coupling themselves to every underlying healthcare system.
 
 ---
 
-## Project Structure
+# Core Capabilities
 
-CareFlow uses package-by-feature organization.
+## Healthcare Organization Management
 
-```text
-src/main/java/com/careflow/
+CareFlow manages healthcare organizations participating in the clinical ecosystem.
 
-├── CareflowApplication.java
-│
-├── common/
-│   ├── exception/
-│   ├── response/
-│   └── util/
-│
-├── organization/
-│   ├── controller/
-│   ├── dto/
-│   ├── entity/
-│   ├── mapper/
-│   ├── repository/
-│   └── service/
-│
-├── practitioner/
-│   ├── controller/
-│   ├── dto/
-│   ├── entity/
-│   ├── mapper/
-│   ├── repository/
-│   └── service/
-│
-└── patient/
-    ├── controller/
-    ├── dto/
-    ├── entity/
-    ├── mapper/
-    ├── repository/
-    └── service/
-```
+Organizations may represent:
 
-Each healthcare domain owns its controller, service, persistence, mapping, and API models.
+- Hospitals
+- Clinics
+- Diagnostic centers
+- Laboratories
+- Imaging centers
+- Healthcare networks
 
-This structure keeps domain boundaries explicit and provides a cleaner path toward future modularization.
+Organization information includes identifiers, contact information, addresses, organization type, operational status, and audit metadata.
 
 ---
 
-## Current API Design
+## Practitioner Management
 
-The API separates external contracts from persistence entities.
+Healthcare professionals are represented as practitioners.
 
-```text
-HTTP Request
-      |
-      v
-Controller
-      |
-      v
-Request DTO
-      |
-      v
-Validation
-      |
-      v
-Service
-      |
-      v
-Mapper
-      |
-      v
-JPA Entity
-      |
-      v
-Repository
-      |
-      v
-PostgreSQL
-      |
-      v
-Response DTO
-      |
-      v
-HTTP Response
-```
+Practitioners can include:
 
-JPA entities are not directly exposed through REST endpoints.
+- Physicians
+- Nurses
+- Radiologists
+- Laboratory professionals
+- Specialists
+- Other clinical personnel
+
+Practitioners can be associated with healthcare organizations and clinical encounters.
 
 ---
 
-## Organization API
+## Patient Management
 
-Current base endpoint:
+CareFlow maintains patient identity and demographic information used across clinical workflows.
 
-```text
-/api/v1/organizations
-```
+Patient information provides the foundation for linking:
 
-### Create Organization
+- Encounters
+- Observations
+- Diagnoses
+- Medications
+- Laboratory results
+- Imaging studies
+- Clinical alerts
 
-```http
-POST /api/v1/organizations
-```
-
-Example request:
-
-```json
-{
-  "organizationCode": "HOSP-BLR-001",
-  "name": "Example Medical Center",
-  "type": "HOSPITAL",
-  "phone": "9876543210",
-  "email": "contact@example.com",
-  "addressLine1": "Yelahanka",
-  "addressLine2": "North Bengaluru",
-  "city": "Bengaluru",
-  "state": "Karnataka",
-  "postalCode": "560064",
-  "country": "India"
-}
-```
-
-Response:
-
-```text
-201 Created
-```
-
-### Get Organization
-
-```http
-GET /api/v1/organizations/{id}
-```
-
-Example:
-
-```http
-GET /api/v1/organizations/1
-```
-
-Responses:
-
-```text
-200 OK
-404 Not Found
-```
+This allows clinical information from different systems to be associated with a consistent patient record.
 
 ---
 
-## API Error Handling
+## Clinical Encounter Management
 
-CareFlow provides centralized API exception handling using Spring `@RestControllerAdvice`.
+An encounter represents an interaction between a patient and the healthcare system.
 
-Current error handling includes:
+Examples include:
 
-| Condition | HTTP Status |
-|---|---|
-| Request validation failure | 400 Bad Request |
-| Resource not found | 404 Not Found |
-| Duplicate resource | 409 Conflict |
+- Outpatient consultations
+- Emergency visits
+- Inpatient admissions
+- Follow-up consultations
+- Diagnostic visits
 
-Example:
-
-```json
-{
-  "timestamp": "2026-09-19T19:30:00",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Organization not found with id: 100",
-  "path": "/api/v1/organizations/100"
-}
-```
-
-Validation errors additionally provide field-level information.
-
----
-
-## Database Strategy
-
-PostgreSQL is the primary relational database.
-
-Database schema evolution is managed using Flyway migrations.
-
-```text
-src/main/resources/db/migration/
-
-V1__create_organizations_table.sql
-```
-
-Hibernate is configured with:
-
-```yaml
-ddl-auto: validate
-```
-
-Therefore:
-
-```text
-Flyway    -> Database schema ownership
-Hibernate -> Entity/schema validation
-```
-
-Application code does not rely on Hibernate to automatically modify the database schema.
-
-Database-level constraints are retained even when equivalent validation exists at the application layer.
-
-For example, organization codes are protected through both application validation and a database unique constraint.
-
----
-
-## Healthcare Domain Model
-
-The platform is being developed around healthcare domains.
-
-```text
-Organization
-     |
-     +---- Practitioner
-     |
-     +---- Patient
-              |
-              +---- Encounter
-                       |
-                       +---- Observation
-                       |
-                       +---- Condition
-                       |
-                       +---- Medication
-                       |
-                       +---- Diagnostic Report
-                       |
-                       +---- Imaging Study
-```
-
-The domain model will evolve as FHIR interoperability is introduced.
-
----
-
-## FHIR Interoperability
-
-FHIR R4 support is a major planned capability of CareFlow.
-
-Initial resources will include:
+Encounters provide the context under which clinical information is recorded.
 
 ```text
 Patient
-Practitioner
+   |
+   +---- Encounter
+           |
+           +---- Observations
+           +---- Conditions
+           +---- Medications
+           +---- Laboratory Results
+           +---- Imaging Studies
+```
+
+---
+
+## Longitudinal Patient Timeline
+
+CareFlow organizes clinical events into a longitudinal patient timeline.
+
+Instead of requiring applications to query several independent systems, the timeline provides a consolidated representation of the patient's clinical history.
+
+Example:
+
+```text
+Patient
+  |
+  +-- 09:00  Encounter Started
+  |
+  +-- 09:10  Vital Signs Recorded
+  |
+  +-- 09:30  Physician Assessment
+  |
+  +-- 10:00  Laboratory Test Ordered
+  |
+  +-- 11:15  Laboratory Result Available
+  |
+  +-- 11:20  Abnormal Result Detected
+  |
+  +-- 11:21  Clinical Alert Generated
+  |
+  +-- 12:00  Imaging Study Ordered
+  |
+  +-- 14:30  Imaging Study Available
+```
+
+This provides applications with a chronological view of patient activity.
+
+---
+
+# Healthcare Interoperability
+
+## FHIR R4
+
+CareFlow uses HL7 FHIR R4 concepts for standardized healthcare information exchange.
+
+Core healthcare resources include:
+
+```text
 Organization
+Practitioner
+Patient
 Encounter
 Observation
 Condition
 DiagnosticReport
 MedicationRequest
+ImagingStudy
 ```
 
-HAPI FHIR is planned for FHIR resource processing.
+HAPI FHIR provides Java-based FHIR resource processing and validation.
 
-The architecture will maintain separation between internal domain models and external FHIR representations where appropriate.
-
-Conceptually:
+The architecture separates the internal domain model from external interoperability representations.
 
 ```text
-Internal Clinical Model
+Internal Domain Model
           |
           v
-     FHIR Mapping
+     FHIR Mapper
           |
           v
-     FHIR R4 API
+   FHIR R4 Resource
           |
           v
-External Healthcare Systems
+External Healthcare System
 ```
+
+This allows CareFlow's internal architecture to evolve while maintaining standardized interfaces for external healthcare systems.
 
 ---
 
-## Event-Driven Architecture
+# Event-Driven Clinical Processing
 
-Clinical events will eventually be published through Apache Kafka.
+Healthcare workflows frequently involve events that must be processed asynchronously.
 
-Example events:
+CareFlow uses Apache Kafka as the event backbone for clinical workflows.
+
+Example events include:
 
 ```text
 PatientRegistered
@@ -447,100 +253,140 @@ ObservationRecorded
 LabResultAvailable
 ImagingStudyAvailable
 ClinicalAlertTriggered
+EncounterCompleted
 ```
 
-Target architecture:
+Architecture:
 
 ```text
-                     Clinical Services
-                            |
-                            v
-                     Apache Kafka
-                            |
-             +--------------+--------------+
-             |              |              |
-             v              v              v
-       Alert Engine      Audit        Notification
+                    Clinical Services
+                           |
+                           v
+                    Apache Kafka
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+    Alert Engine       Audit Service    Notification
+          |                                 |
+          v                                 v
+   Clinical Alert                     User / System
 ```
 
-The implementation will cover:
+The event architecture supports:
 
-- Event producers and consumers
+- Producers and consumers
 - Consumer groups
-- Partitioning
 - Event schemas
-- Idempotency
-- Retry strategies
+- Partitioning
+- Retry mechanisms
 - Dead-letter queues
+- Idempotent processing
 - Eventual consistency
 
+This reduces tight coupling between clinical modules.
+
 ---
 
-## Clinical Rules and Alerts
+# Clinical Rules and Alert Engine
 
-CareFlow will introduce a clinical rules layer for evaluating incoming patient observations and events.
+CareFlow includes a rules layer for evaluating clinical observations and events.
 
 ```text
-Clinical Event
-      |
-      v
-Rules Evaluation
-      |
-  +---+---+
-  |       |
-Normal  Abnormal
-          |
-          v
-     Clinical Alert
-          |
-          v
-   Event Publication
+Clinical Observation
+         |
+         v
+   Rules Evaluation
+         |
+     +---+---+
+     |       |
+   Normal  Abnormal
+             |
+             v
+       Clinical Alert
+             |
+             v
+        Kafka Event
+             |
+       +-----+-----+
+       |           |
+       v           v
+ Notification    Audit
 ```
 
-Rules will initially remain deterministic and configurable.
+Clinical rules can evaluate information such as observations, laboratory results, and other clinical events.
 
-The objective is to build a reliable clinical event-processing foundation before considering more advanced intelligence layers.
+Alerts can be categorized according to severity and processed asynchronously.
 
 ---
 
-## Medical Imaging Integration
+# Medical Imaging Integration
 
-Medical imaging integration is planned at the metadata and workflow level.
+CareFlow integrates medical imaging information with the patient's broader clinical record.
 
-Initial concepts include:
+The platform focuses on imaging workflow and metadata integration rather than replacing a PACS.
+
+Supported concepts include:
 
 - DICOM
 - PACS
+- ImagingStudy
 - StudyInstanceUID
 - SeriesInstanceUID
 - Accession Number
 - Modality
-- Study metadata
-- Imaging workflow events
+- Study date and time
+- Imaging status
+- Imaging metadata
 
-CareFlow is not intended to replace a PACS. Instead, imaging metadata will be linked to the broader patient clinical timeline.
+Architecture:
+
+```text
+Imaging Modality
+      |
+      v
+     PACS
+      |
+      | DICOM Metadata
+      v
+   CareFlow
+      |
+      v
+ ImagingStudy
+      |
+      v
+Patient Clinical Timeline
+```
+
+This allows imaging activity to participate in the same clinical timeline as encounters, laboratory results, observations, and medications.
 
 ---
 
-## Security
+# Security Architecture
 
-Planned security architecture includes:
+CareFlow uses a layered authentication and authorization model.
 
 ```text
+Client
+   |
+   v
+Authentication
+   |
+   v
+JWT / OAuth2
+   |
+   v
 Spring Security
-       |
-       +---- Authentication
-       |
-       +---- JWT Access Tokens
-       |
-       +---- Refresh Tokens
-       |
-       +---- Role-Based Access Control
-       |
-       +---- Resource Authorization
+   |
+   +---- Role Authorization
+   |
+   +---- Resource Authorization
+   |
+   v
+Protected Clinical APIs
 ```
 
-Initial application roles are expected to include:
+Example roles include:
 
 ```text
 ADMIN
@@ -551,100 +397,335 @@ RADIOLOGIST
 PATIENT
 ```
 
-Security implementation will include both endpoint-level authorization and resource-level ownership checks.
+Authorization is designed to operate at multiple levels:
+
+- Endpoint access
+- Role permissions
+- Organization boundaries
+- Resource ownership
+- Clinical data access
+
+Security-sensitive operations are captured through audit records.
 
 ---
 
-## Testing Strategy
+# Auditability
 
-The project will use multiple levels of automated testing.
+Healthcare systems require traceability of operations performed on clinical information.
 
-```text
-Unit Tests
-     |
-Repository Tests
-     |
-Service Tests
-     |
-Controller Tests
-     |
-Integration Tests
-     |
-Container-Based Database Tests
-     |
-Performance Tests
-```
-
-Planned tools include:
-
-- JUnit 5
-- Mockito
-- Spring Boot Test
-- Testcontainers
-- PostgreSQL
-
-Later development phases will introduce SonarQube quality gates.
-
-Initial quality targets:
+CareFlow maintains audit information for significant actions such as:
 
 ```text
-Coverage          >= 80%
-Code Duplication  < 3%
-Blocker Issues    0
-Critical Issues   0
+Patient record accessed
+Patient information modified
+Clinical observation created
+Laboratory result received
+Imaging information accessed
+Authentication activity
+Authorization failure
+Clinical alert generated
 ```
+
+Audit events capture contextual information such as:
+
+```text
+User
+Action
+Resource
+Timestamp
+Organization
+Request / Correlation ID
+```
+
+This creates a traceable history of system activity.
 
 ---
 
-## Performance Engineering
+# System Architecture
 
-CareFlow will include explicit performance testing rather than relying only on functional correctness.
-
-Planned workload levels include:
+CareFlow follows domain-oriented modular architecture.
 
 ```text
-100 concurrent users
-500 concurrent users
-1,000 concurrent users
-5,000 concurrent users
+                       API Gateway
+                           |
+                           v
+              +-------------------------+
+              |     CareFlow Platform   |
+              +-------------------------+
+                           |
+        +------------------+------------------+
+        |                  |                  |
+        v                  v                  v
+    Identity           Clinical           Integration
+     Domain             Domain              Domain
+        |                  |                  |
+        |          +-------+-------+          |
+        |          |       |       |          |
+        |       Patient Encounter Observation |
+        |                                     |
+        +------------------+------------------+
+                           |
+                     Event Backbone
+                           |
+                        Kafka
+                           |
+           +---------------+---------------+
+           |               |               |
+           v               v               v
+        Alerts           Audit        Notifications
 ```
 
-Metrics will include:
+The architecture is designed so domain boundaries can remain independent of deployment boundaries.
 
-- p50 latency
-- p95 latency
-- p99 latency
-- Throughput
-- Error rate
-- Database connection utilization
-- CPU utilization
-- Memory utilization
-
-Optimization work will include database indexing, query analysis, connection pooling, pagination, N+1 detection, and caching.
+Modules can therefore remain within a modular application or be extracted into services when scalability, ownership, or operational requirements justify the change.
 
 ---
 
-## Observability
+# Backend Request Architecture
 
-The planned observability stack includes:
+REST requests follow a layered processing model.
+
+```text
+HTTP Request
+     |
+     v
+Controller
+     |
+     v
+Request DTO
+     |
+     v
+Validation
+     |
+     v
+Service
+     |
+     v
+Business Rules
+     |
+     v
+Mapper
+     |
+     v
+Repository
+     |
+     v
+PostgreSQL
+```
+
+Responses follow the reverse path through dedicated response DTOs.
+
+Persistence entities are not directly exposed through external APIs.
+
+---
+
+# Data Architecture
+
+PostgreSQL serves as the primary transactional datastore.
+
+Schema changes are managed using Flyway rather than relying on automatic Hibernate schema generation.
+
+```text
+Application
+     |
+     v
+Spring Data JPA
+     |
+     v
+Hibernate
+     |
+     v
+PostgreSQL
+```
+
+The database design uses:
+
+- Primary keys
+- Business identifiers
+- Unique constraints
+- Foreign keys
+- Database indexes
+- Transactional boundaries
+- Audit timestamps
+- Referential integrity
+
+Redis provides caching for frequently accessed data where appropriate.
+
+---
+
+# API Design
+
+CareFlow exposes versioned REST APIs.
+
+Example:
+
+```text
+/api/v1/organizations
+/api/v1/practitioners
+/api/v1/patients
+/api/v1/encounters
+/api/v1/observations
+/api/v1/imaging-studies
+```
+
+Standard HTTP semantics are followed:
+
+| Operation | Method |
+|---|---|
+| Create resource | POST |
+| Retrieve resource | GET |
+| Update resource | PUT |
+| Partial state change | PATCH |
+| Remove/deactivate resource | DELETE / PATCH |
+
+Responses use appropriate HTTP status codes and standardized error structures.
+
+OpenAPI documentation provides machine-readable API specifications and interactive API exploration.
+
+---
+
+# Error Handling
+
+Application exceptions are translated into consistent REST responses through centralized exception handling.
+
+Example:
+
+```json
+{
+  "timestamp": "2026-09-19T20:00:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Organization not found with id: 100",
+  "path": "/api/v1/organizations/100"
+}
+```
+
+Typical API conditions include:
+
+```text
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+409 Conflict
+500 Internal Server Error
+```
+
+Validation failures provide field-level error information.
+
+---
+
+# Performance and Scalability
+
+CareFlow is designed with measurable performance characteristics.
+
+Performance engineering covers:
+
+- Pagination
+- Database indexing
+- Query optimization
+- N+1 query prevention
+- Connection pooling
+- Redis caching
+- Asynchronous processing
+- Kafka partitioning
+- Horizontal scaling
+
+Application performance is measured using:
+
+```text
+p50 latency
+p95 latency
+p99 latency
+throughput
+error rate
+CPU utilization
+memory utilization
+database connections
+```
+
+The platform is designed to support increasing workloads without requiring architectural changes to basic domain behavior.
+
+---
+
+# Observability
+
+CareFlow provides application and infrastructure observability using:
 
 ```text
 Spring Boot Actuator
 Prometheus
 Grafana
-Structured Application Logs
 OpenTelemetry
+Structured Logging
 Distributed Tracing
 Correlation IDs
 ```
 
-The objective is to make system behavior measurable across HTTP requests, database operations, and eventually asynchronous events.
+Request correlation allows operations to be followed across services and asynchronous events.
+
+```text
+HTTP Request
+     |
+Correlation ID
+     |
+     +---- API
+     |
+     +---- Database
+     |
+     +---- Kafka Event
+     |
+     +---- Consumer
+     |
+     +---- Alert
+```
 
 ---
 
-## Deployment Architecture
+# Testing Strategy
 
-The deployment roadmap includes Docker, automated CI/CD, Kubernetes, and cloud infrastructure.
+CareFlow uses multiple levels of automated testing.
+
+```text
+                    Testing Pyramid
+
+                   /\
+                  /  \
+                 / E2E\
+                /------\
+               /Integration\
+              /------------\
+             /  Unit Tests   \
+            /________________\
+```
+
+Testing includes:
+
+- Unit tests
+- Service tests
+- Repository tests
+- Controller tests
+- Integration tests
+- PostgreSQL container tests
+- API tests
+- Performance tests
+
+Core technologies include:
+
+```text
+JUnit 5
+Mockito
+Spring Boot Test
+Testcontainers
+```
+
+SonarQube provides static analysis and code quality measurement.
+
+---
+
+# DevOps Architecture
+
+CareFlow uses an automated software delivery pipeline.
 
 ```text
 Developer
@@ -655,215 +736,161 @@ GitHub
     v
 GitHub Actions
     |
-    +---- Build
+    +---- Compile
+    |
     +---- Unit Tests
+    |
     +---- Integration Tests
-    +---- Quality Analysis
-    +---- Security Checks
     |
-    v
-Docker Image
+    +---- SonarQube
     |
-    v
-Container Registry
+    +---- Security Scan
     |
-    v
-Kubernetes
-    |
-    v
-Cloud Infrastructure
+    +---- Docker Build
+             |
+             v
+      Container Registry
+             |
+             v
+        Kubernetes
+             |
+             v
+        Cloud Platform
 ```
+
+Docker provides reproducible application environments while Kubernetes provides orchestration and horizontal scaling.
 
 ---
 
-## Development Roadmap
+# Technology Stack
 
-| Phase | Scope | Status |
-|---|---|---|
-| 1 | Spring Boot Foundation | In Progress |
-| 2 | Authentication, JWT and RBAC | Planned |
-| 3 | Clinical Domain and Patient Timeline | Planned |
-| 4 | FHIR R4 Interoperability | Planned |
-| 5 | Automated Testing and SonarQube | Planned |
-| 6 | Kafka Event-Driven Architecture | Planned |
-| 7 | Clinical Rules and Alert Engine | Planned |
-| 8 | Redis, Performance and Scalability | Planned |
-| 9 | Medical Imaging Integration | Planned |
-| 10 | Microservices Evolution | Planned |
-| 11 | React Clinical Dashboard | Planned |
-| 12 | Docker, CI/CD and Cloud | Planned |
-| 13 | Observability and Reliability | Planned |
-| 14 | Architecture and Engineering Documentation | Planned |
-
----
-
-## Current Progress
-
-### Implemented
-
-- Java 21 application foundation
-- Spring Boot 3.5.x
-- PostgreSQL integration
-- Environment-specific configuration
-- Flyway schema migrations
-- Organization persistence model
-- Repository layer
-- Request and response DTO separation
-- Bean Validation
-- DTO/entity mapping
-- Service layer
-- Transaction management
-- Duplicate organization detection
-- Centralized exception handling
-- Standard API error responses
-- Organization creation endpoint
-- Organization lookup by ID
-- HTTP 400 validation responses
-- HTTP 404 resource handling
-- HTTP 409 conflict handling
-
-### In Development
-
-- Organization listing
-- Pagination and sorting
-- Organization update
-- Organization deactivation
-- OpenAPI/Swagger documentation
-
-### Planned Next
-
-- Practitioner domain
-- Patient domain
-- Automated tests
-- Security foundation
+| Category | Technology |
+|---|---|
+| Language | Java 21 |
+| Backend | Spring Boot |
+| REST | Spring Web |
+| Security | Spring Security |
+| Authentication | JWT / OAuth2 |
+| Persistence | Spring Data JPA |
+| ORM | Hibernate |
+| Database | PostgreSQL |
+| Migration | Flyway |
+| Healthcare Interoperability | HL7 FHIR R4 |
+| FHIR Library | HAPI FHIR |
+| Event Streaming | Apache Kafka |
+| Caching | Redis |
+| Frontend | React, TypeScript |
+| Testing | JUnit 5, Mockito |
+| Integration Testing | Testcontainers |
+| Code Quality | SonarQube |
+| API Documentation | OpenAPI / Swagger |
+| Containerization | Docker |
+| Orchestration | Kubernetes |
+| CI/CD | GitHub Actions |
+| Metrics | Prometheus |
+| Monitoring | Grafana |
+| Tracing | OpenTelemetry |
+| Cloud | AWS / Azure |
 
 ---
 
-## Running Locally
-
-### Prerequisites
-
-- Java 21+
-- PostgreSQL
-- Git
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd careflow
-```
-
-Create the database:
-
-```sql
-CREATE DATABASE careflow_db;
-```
-
-Configure the required database environment variables.
-
-Do not store database passwords directly in source-controlled configuration.
-
-On Windows:
-
-```powershell
-.\mvnw.cmd clean verify
-.\mvnw.cmd spring-boot:run
-```
-
-On Linux/macOS:
-
-```bash
-./mvnw clean verify
-./mvnw spring-boot:run
-```
-
-The API is available by default at:
+# Repository Structure
 
 ```text
-http://localhost:8080
+careflow/
+|
+├── src/
+│   ├── main/
+│   │   ├── java/com/careflow/
+│   │   │   ├── common/
+│   │   │   ├── organization/
+│   │   │   ├── practitioner/
+│   │   │   ├── patient/
+│   │   │   ├── encounter/
+│   │   │   ├── observation/
+│   │   │   ├── imaging/
+│   │   │   ├── alert/
+│   │   │   └── audit/
+│   │   |
+│   │   └── resources/
+│   │       └── db/migration/
+│   |
+│   └── test/
+|
+├── docs/
+│   ├── architecture/
+│   ├── api/
+│   ├── fhir/
+│   └── performance/
+|
+├── .github/
+│   └── workflows/
+|
+├── docker/
+├── pom.xml
+├── README.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+└── LICENSE
 ```
 
-Flyway validates and applies pending migrations during application startup.
+---
+
+# Engineering Principles
+
+CareFlow is designed around the following principles:
+
+1. Domain boundaries should be established before service boundaries.
+2. Healthcare interoperability should use established standards where possible.
+3. Persistence entities should not define external API contracts.
+4. Controllers should remain focused on HTTP concerns.
+5. Business logic should remain independent of transport mechanisms.
+6. Database changes should be explicitly versioned.
+7. Critical integrity constraints should exist at the database level.
+8. Distributed systems should be introduced only where they provide measurable value.
+9. Clinical events should be traceable.
+10. Security, testing, observability, and performance are architectural requirements rather than afterthoughts.
 
 ---
 
-## Engineering Principles
+# Project Goals
 
-CareFlow follows several architectural principles:
+CareFlow is designed to demonstrate how a modern healthcare platform can combine:
 
-1. Establish clear domain boundaries before introducing microservices.
-2. Keep controllers focused on HTTP concerns.
-3. Keep business rules inside the service/domain layer.
-4. Separate API contracts from persistence entities.
-5. Version database changes explicitly.
-6. Enforce critical data integrity rules at the database level.
-7. Prefer healthcare standards over proprietary representations where appropriate.
-8. Measure performance before optimizing.
-9. Introduce distributed infrastructure only when justified.
-10. Treat testing, security, observability, and documentation as core engineering concerns.
+- Enterprise Java backend engineering
+- Healthcare interoperability
+- Clinical domain modeling
+- Event-driven architecture
+- Distributed systems
+- Secure API design
+- Database engineering
+- Medical imaging integration
+- Performance engineering
+- Automated testing
+- Observability
+- DevOps
+- Cloud-native deployment
 
----
-
-## Why CareFlow?
-
-CareFlow is intended to bridge the gap between a typical Spring Boot portfolio application and the engineering problems encountered in real healthcare platforms.
-
-Instead of stopping at REST CRUD operations, the project progressively introduces:
-
-```text
-REST APIs
-   |
-   v
-Healthcare Domain Modeling
-   |
-   v
-FHIR Interoperability
-   |
-   v
-Security
-   |
-   v
-Event-Driven Processing
-   |
-   v
-Clinical Rules
-   |
-   v
-Performance Engineering
-   |
-   v
-Medical Imaging Integration
-   |
-   v
-Observability
-   |
-   v
-Cloud-Native Deployment
-```
-
-The repository is designed to evolve alongside the implementation, with architecture decisions, performance results, API documentation, and engineering trade-offs documented as the platform grows.
+The project aims to provide a technically realistic reference architecture for developers interested in healthcare software engineering and clinical interoperability.
 
 ---
 
-## Contributing
+# Disclaimer
 
-CareFlow is currently under active development.
+CareFlow is an engineering and educational project intended for software development, architecture research, and healthcare interoperability experimentation.
 
-Issues, technical discussions, architecture suggestions, healthcare interoperability improvements, and pull requests are welcome as the project matures.
-
-Before contributing, please open an issue describing significant architectural changes or new modules.
+It is not a certified medical device or validated clinical decision-support system and must not be used for diagnosis, treatment decisions, or real-world patient care without the required clinical validation, regulatory review, security controls, and organizational approvals.
 
 ---
 
-## Disclaimer
+# Contributing
 
-CareFlow is an engineering and educational project.
+Contributions related to healthcare interoperability, backend architecture, FHIR integration, performance, security, testing, documentation, and clinical workflow modeling are welcome.
 
-It is not a certified medical device, clinical decision support system, or production healthcare product. It must not be used for diagnosis, treatment decisions, or real-world patient care without the required clinical validation, regulatory review, security controls, and organizational approvals.
+For significant architectural changes, open an issue describing the proposed design and motivation before submitting a pull request.
 
 ---
 
-## License
+# License
 
-A license will be added as the project approaches its first public release.
+This project is distributed under the terms specified in the repository's `LICENSE` file.
