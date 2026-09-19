@@ -1,7 +1,8 @@
 package com.careflow.organization.entity;
 
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -20,31 +21,160 @@ public class Organization {
 
     @Column(name = "type",nullable = false,length = 50)
     private String type;
+
     @Column(name = "phone",length = 20)
     private String phone ;
+
     @Column(name = "email",length = 150)
     private String email;
+
     @Column(name = "address_line_1",length = 255)
     private String addressLine1;
+
     @Column(name= "address_line_2",length = 255)
     private String addressLine2;
+
     @Column(name = "city",length = 100)
     private String city;
+
     @Column(name = "state",length = 100)
     private String state;
+
     @Column(name = "postal_code",length = 20)
     private String postalCode;
+
     @Column(name = "country",length = 100)
     private String country;
+
     @Column(name = "active",nullable = false)
     private Boolean active=true;
-    @Timestamp
+
+    @CreationTimestamp
     @Column(name = "created_at",nullable = false,updatable = false)
     private LocalDateTime createdAt;
-    @Timestamp
+
+    @UpdateTimestamp
     @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 
 
+    public String getOrganizationCode() {
+        return organizationCode;
+    }
 
+    public void setOrganizationCode(String organizationCode) {
+        this.organizationCode = organizationCode;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

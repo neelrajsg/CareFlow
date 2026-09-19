@@ -1,11 +1,12 @@
 spring:
-
   datasource:
     url: jdbc:postgresql://localhost:5432/careflow_db
     username: postgres
     password: root
 
   jpa:
+    open-in-view: false
+
     hibernate:
       ddl-auto: validate
 
