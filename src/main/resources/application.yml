@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: careflow
+
+  profiles:
+    active: dev
