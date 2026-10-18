@@ -18,7 +18,7 @@ public record CreateOrganizationRequest(
     @Size(max = 50)
     String type,
 
-    @Size(max = 50)
+    @Size(max = 20, message = "Phone cannot exceed 20 characters")
     String phone,
 
     @Size(max = 150)
@@ -26,10 +26,10 @@ public record CreateOrganizationRequest(
     String email,
 
     @Size(max = 255)
-    String addressline1,
+    String addressLine1,
 
     @Size(max = 255)
-    String addressline2,
+    String addressLine2,
 
     @Size(max = 100)
     String city,
@@ -41,6 +41,6 @@ public record CreateOrganizationRequest(
     String postalCode,
 
     @Size(max = 100)
-    String Country
+    String country
 
     ){}

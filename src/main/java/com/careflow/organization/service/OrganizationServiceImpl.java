@@ -15,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationRepository orgRepo;
@@ -81,11 +79,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Transactional
     public OrganizationResponse deactivatOrganization(Long id) {
 
-        Organization organization = orgRepo.findById(id).orElseThrow(() -> {
-                    return new ResourceNotFoundException(
+        Organization organization = orgRepo.findById(id).orElseThrow(() ->
+                     new ResourceNotFoundException(
                             "Organization not found with id: " + id
-                    );
-                });
+                    )
+                );
 
         organization.setActive(false);
 
@@ -115,9 +113,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         if(active!=null){
             spec=spec.and(OrganizationSpecification.hasActive(active));
         }
-
-
-
         return orgRepo.findAll(spec,pageable).map(orgMapper::toResponse);
     }
 

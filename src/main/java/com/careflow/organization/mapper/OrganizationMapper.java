@@ -18,12 +18,12 @@ public class OrganizationMapper {
         org.setType(request.type());
         org.setPhone(request.phone());
         org.setEmail(request.email());
-        org.setAddressLine1(request.addressline1());
-        org.setAddressLine2(request.addressline2());
+        org.setAddressLine1(request.addressLine1());
+        org.setAddressLine2(request.addressLine2());
         org.setCity(request.city());
         org.setState(request.state());
         org.setPostalCode(request.postalCode());
-        org.setCountry(request.Country());
+        org.setCountry(request.country());
         org.setActive(true);
 
         return org;

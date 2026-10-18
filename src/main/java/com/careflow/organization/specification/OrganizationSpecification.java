@@ -39,4 +39,6 @@ public class OrganizationSpecification {
                 criteriaBuilder.lower(root.get("name")),"%"+ search.toLowerCase() +"%" );
     }
 
+
+
 }
